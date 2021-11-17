@@ -110,7 +110,7 @@ end
 
 %% Plotting function
 if debug
-    trial_to_plot = 1;
+    trial_to_plot =2;
     clf
     hold on
     axis("equal")
