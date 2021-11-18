@@ -7,7 +7,7 @@ clc; clear all;
 
 %% Set simulation Paramters
 % Meta Params
-    N = 1e5;%2.5e7;         % number of rays to cast per trial
+    N = 500e4;         % number of rays to cast per trial
     N_to_plot = 1e3; % number to plot if debug 
     debug = true;   % will plot and print if true
 
@@ -40,6 +40,9 @@ light = Light(L_pos, L_norm, L_id, L_od);
 detector = Detector(D_pos, D_norm, D_d);
 detector_hits = zeros(length(v),1);
 ray_log = cell(N_to_plot,6,length(v));
+elx = deg2rad(5);
+azx1 = deg2rad(357);
+azx2 = deg2rad(3);
 
 %% Main raytracing loop
 for i=1:length(v) % for every x position of reflector
@@ -48,7 +51,7 @@ for i=1:length(v) % for every x position of reflector
     tic
     for n = 1:N
         [ray, az, el] = light.genRandomRay();
-        if ( (el < deg2rad(5)) || (az > deg2rad(357)) || (az < deg2rad(3)))  
+        if ((el < elx) || (az > azx1) || (az < azx2))  
             done = false;
             k=1;
             while(~done)        
@@ -96,18 +99,18 @@ for i=1:length(v) % for every x position of reflector
                 end
     
                 if debug && logged_ray_cnt <= N_to_plot
-                      if best_old_ray.type == "MISSED" || best_old_ray.type == "DETECTED"
+%                       if best_old_ray.type == "MISSED" || best_old_ray.type == "DETECTED"
                         ray_log{n,k,i} = best_old_ray;         
                         logged_ray_cnt = logged_ray_cnt + 1;
-                     end
+%                      end
                 end
                  k=k+1;
             end        
-%         else
+        else
 %             if debug
-% %                 ray.tof = inf;
-% %                 ray_log{n,1,i} = ray;         
-% %                 logged_ray_cnt = logged_ray_cnt + 1;
+%                 ray.tof = inf;
+%                 ray_log{n,1,i} = ray;         
+%                 logged_ray_cnt = logged_ray_cnt + 1;
 %             end
         end
     end
@@ -117,12 +120,12 @@ end
 
 %% Plotting function
 if debug
-    trial_to_plot = 1;
+    trial_to_plot = 5;
     clf
     hold on
     axis("equal")
     grid on
-    s=.5;
+    s=1.5;
     xlim(s*[-1 1]);
     ylim(s*[-1 1]);
     zlim(s*[-1 1]);
@@ -160,6 +163,5 @@ disp(detector_hits');
 
 
 fid = fopen('alpha_data.txt', 'a+');
-fprintf(fid,'%d ', detector_hits);
-fprintf(fid,'\n');
+fprintf(fid, '%d  %d  %d  %d  %d  R_d=%.3f  D_d=%.3f  h=%.2f  N=%.2e  T=%.2fs\n', detector_hits, R_d, D_d,h, N,elapsed);
 fclose(fid);
