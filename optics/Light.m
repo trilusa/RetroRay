@@ -25,7 +25,7 @@ classdef Light
             obj.od=od;
         end
 
-        function ray = genRandomRay(obj)
+        function [ray, az, el] = genRandomRay(obj)
             % generates src_pt as random point on light ring and a dir vector
             % according to the lambertian ligth source model
 
