@@ -7,15 +7,15 @@ clc; clear all;
 
 %% Set simulation Paramters
 % Meta Params
-    N = 500e4;         % number of rays to cast per trial
-    N_to_plot = 1e3; % number to plot if debug 
-    debug = true;   % will plot and print if true
+    N = 1e8;         % number of rays to cast per trial
+    N_to_plot = 10000; % number to plot if debug 
+    debug = false;   % will plot and print if true
 
 % Scene Params
     v = 0:0.1:.4;     % horizontal displacements to simulate
     R_test_pos = [-v; zeros(2, length(v))]; % (v,0,0) positions to test retroreflector
     h = 1.5;         % height of lamp above retrorefltor (m)
-
+  
 % Retroreflector Params
     R_d = .050;       % front face diamter (r in the paper, 50mm)
     R_ri = 1;        % refractive index of CC material
@@ -39,19 +39,21 @@ clc; clear all;
 light = Light(L_pos, L_norm, L_id, L_od);
 detector = Detector(D_pos, D_norm, D_d);
 detector_hits = zeros(length(v),1);
-ray_log = cell(N_to_plot,6,length(v));
-elx = deg2rad(5);
-azx1 = deg2rad(357);
-azx2 = deg2rad(3);
+ray_log = cell(N_to_plot,2,length(v));
+elx1 = deg2rad(7);
+elx2 = deg2rad(25);
+azx1 = deg2rad(330);
+azx2 = deg2rad(30);
 
 %% Main raytracing loop
 for i=1:length(v) % for every x position of reflector
-    logged_ray_cnt=0;
+    logged_ray_cnt=1;
     [refl1, refl2, refl3, cylender, circle] = buildCornerCube(R_d, R_L, R_Ls, R_test_pos(:,i), R_az, R_el);
     tic
     for n = 1:N
-        [ray, az, el] = light.genRandomRay();
-        if ((el < elx) || (az > azx1) || (az < azx2))  
+        [init_ray, az, el] = light.genRandomRay();
+        if ((el < elx1) || (az > azx1) || (az < azx2)) && (el < elx2)  
+            ray = init_ray;
             done = false;
             k=1;
             while(~done)        
@@ -98,29 +100,26 @@ for i=1:length(v) % for every x position of reflector
                     disp("error: bad return ray");
                 end
     
-                if debug && logged_ray_cnt <= N_to_plot
-%                       if best_old_ray.type == "MISSED" || best_old_ray.type == "DETECTED"
-                        ray_log{n,k,i} = best_old_ray;         
+                if (debug && (logged_ray_cnt <= N_to_plot))
+                      if ((best_old_ray.type == "MISSED") || (best_old_ray.type == "DETECTED"))
+                        init_ray.tof = h;
+                        ray_log{logged_ray_cnt,1,i} = init_ray;
+                        ray_log{logged_ray_cnt,2,i} = best_old_ray;   
                         logged_ray_cnt = logged_ray_cnt + 1;
-%                      end
+                     end
                 end
                  k=k+1;
             end        
-        else
-%             if debug
-%                 ray.tof = inf;
-%                 ray_log{n,1,i} = ray;         
-%                 logged_ray_cnt = logged_ray_cnt + 1;
-%             end
         end
+            
+        
     end
     toc
     elapsed=toc;
-end
-
+ end
 %% Plotting function
 if debug
-    trial_to_plot = 5;
+    trial_to_plot = 1;
     clf
     hold on
     axis("equal")
@@ -148,7 +147,7 @@ if debug
 
     colors = ['b','k','k','r','m','c'];
     for i=1:length([ray_log{:,1,trial_to_plot}])
-        for j=1:6%length([ray_log{1,}])
+        for j=1:2%length([ray_log{1,}])
             if ~isempty(ray_log{i,j,trial_to_plot})% && ray_log{i,j}.type ~= "ABSORBED" && ray_log{i,j}.type ~= "MISSED"
                 ray_log{i,j,trial_to_plot}.color = colors(j);
                 plot(ray_log{i,j,trial_to_plot});
@@ -163,5 +162,5 @@ disp(detector_hits');
 
 
 fid = fopen('alpha_data.txt', 'a+');
-fprintf(fid, '%d  %d  %d  %d  %d  R_d=%.3f  D_d=%.3f  h=%.2f  N=%.2e  T=%.2fs\n', detector_hits, R_d, D_d,h, N,elapsed);
+fprintf(fid, '%d  %d  %d  %d  %d  R_d=%.3f  D_d=%.3f  h=%.2f  N=%.2e  T=%.2fs  Done on %s\n', detector_hits, R_d, D_d,h, N,elapsed, datetime('now'));
 fclose(fid);
