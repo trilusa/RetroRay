@@ -1,10 +1,10 @@
 %% Script to do a fancy plot of ERA vs PD size
 
 % update these numbers to match those of the target data
-    L_Nx = 25; %10e6;         % number of rays to cast per trial
-    L_Ny = 25;
-    R_N = 25;
-    v = 0:0.2:1;    % horizontal displacements to simulate
+    L_Nx = 50; %10e6;         % number of rays to cast per trial
+    L_Ny = 50;
+    R_N = 50;
+    v = 0:0.2:.8;  % horizontal displacements to simulate
     R_test_pos = [-v; zeros(2, length(v))]; % (v,0,0) positions to test retroreflector
     h = 1.5;         % height of lamp above retrorefltor (m)
 
@@ -31,7 +31,13 @@
     Ry(F) = [];
     dest_points = [Rx, Ry, 0*ones(length(Rx),1)];
 
-    
+    L_sx = 2*R_d+.02; %side length for light
+    L_sy = 2*R_d+.02;
+    basisX = -L_sx/2 : L_sx/(L_Nx-1) : L_sx/2;
+    basisY = -L_sy/2 : L_sy/(L_Ny-1) : L_sy/2;
+    [Lx,Ly] = meshgrid(basisX,basisY);
+    Lx=Lx(:);
+    Ly=Ly(:);
 % all_detected = cell(length(D_d),1);
 clf
 
@@ -40,25 +46,20 @@ t=tiledlayout(length(v)+1, length(D_d) ,'TileSpacing','compact');
 
 txt = ['Light panel dim: ' num2str(L_sx) 'x' num2str(L_sy) 'm' ...
     ' (' num2str(L_Nx) 'x' num2str(L_Ny) ' grid),                PD: ' ...
-     num2str(R_N) 'x' num2str(R_N) 'grid,                h=' num2str(h) ',                duration:' num2str(4.04) 'hrs'];
+     num2str(R_N) 'x' num2str(R_N) 'grid,                h=' num2str(h) ',                total duration: ' num2str(59.3) 'hrs'];
 title(t,["Effective Reflecting Area vs Photodiode area" txt]);
 suffix=1;
 for d = 1:length(D_d)
     % generate light points
-    L_sx = 2*R_d; %side length for light
-    L_sy = 2*R_d;
-    basisX = -R_d : L_sx/(L_Nx-1) : L_sx-R_d;
-    basisY = -L_sy/2 : L_sy/(L_Ny-1) : L_sy/2;
-    [Lx,Ly] = meshgrid(basisX,basisY);
-    Lx=Lx(:);
-    Ly=Ly(:);
+    
     F = sqrt(Lx.^2+Ly.^2) <= D_d(d)/2; % remve pts inside PD
     Lx(F) = [];
     Ly(F) = [];
     source_points = [Lx, Ly, h*ones(length(Lx),1)];
     
-    fn =['grid-alpha_' num2str(L_Nx) 'x' num2str(L_Ny) '_PD' num2str(D_d(d)*1000) 'mm(' num2str(suffix) ').mat'];
+    fn =['grid-alpha_' num2str(L_Nx) 'x' num2str(L_Ny) 'x' num2str(R_N) '_PD' num2str(D_d(d)*1000) 'mm(' num2str(suffix) ').mat'];
     load(fn, 'detected');
+    
 %     all_detected{d} = detected;
     for trial = 1:length(v)
         nexttile(d+(trial-1)*length(D_d))
@@ -72,8 +73,8 @@ for d = 1:length(D_d)
             scatter(detected{trial}(:,4), detected{trial}(:,5), 'r', '.'); %hits in detector
         end
         axis equal
-        xlim([-R_d-.005 L_sx-R_d+.005]);
-        ylim([-L_sy/2-.005 L_sy/2+.005]);
+       ylim([-L_sy/2-.005 L_sy/2+.005]);
+       xlim([-L_sx/2-.005 L_sx/2+.005]);
     %         xlim([-.0001-D_d(d)/2  .0001+D_d(d)/2])
     %         ylim([-.0001-D_d(d)/2  .0001+D_d(d)/2])
 
@@ -100,26 +101,33 @@ for d = 1:length(D_d)
     %     num_detected(trial) = length(detected{trial}(:,1));
     % end
 
-    calcAlphaForPDWithArea(D_d(d));
+    alpha = calcAlphaForPDWithArea(D_d(d),v);
+    detector_hits=zeros(1,length(v));
     U=zeros(1,length(v));
     for u = 1:length(v)
         if ~isempty(detected{u})
+         detector_hits(u) = length(detected{u}(:,1));
+         
          Utemp = unique(detected{u}(:,1:3), 'rows');
          U(u) = length(Utemp(:,1));
         end
     end
-    plot(v,U/U(1))
+    plot(v,alpha,'.')
+    plot(v,U/U(1), '.')
+    plot(v,U/U(1)-alpha, '-')
 
-    % all = detector_hits/detector_hits(1);
-    % plot(v,all);
-    lgd=legend(['calculated (' num2str(D_d(d)*1000) 'mm PD)'], ['simulated (' num2str(D_d(d)*1000) 'mm PD)']);%, 'total hits (include redundant src pts)')
+       
+    all = detector_hits/detector_hits(1);
+%     plot(v,all);
+    grid on
+    lgd=legend(['calculated (' num2str(D_d(d)*1000) 'mm PD)'], ['simulated (' num2str(D_d(d)*1000) 'mm PD)'], "error");%, 'total hits (include redundant src pts)')
     set(lgd,'location','south outside')
     
     title(['\alpha for ' num2str(D_d(d)*1000) 'mm PD'])
 hold off
 end
 %%
-clf
+figure
 colors = [  0 0.4470 0.7410;
             0.8500 0.325 0.0980;
             0.9290 0.6940 0.1250;	
@@ -136,14 +144,14 @@ ax.ColorOrder = colors(1:length(D_d),:);
 t2=tiledlayout('flow','TileSpacing','normal');
 nexttile
 hold on
-calcAlphaForPDWithArea(D_d);
+plot(v,alpha)
 title('Theoretical');
 legend([num2str(D_d'*1000)  repmat(' mm',length(D_d),1)])
 hold off
 nexttile
 hold on
 for d=1:length(D_d)
-    fn =['grid-alpha_' num2str(L_Nx) 'x' num2str(L_Ny) '_PD' num2str(D_d(d)*1000) 'mm(' num2str(suffix) ').mat'];
+    fn =['grid-alpha_' num2str(L_Nx) 'x' num2str(L_Ny) 'x' num2str(R_N) '_PD' num2str(D_d(d)*1000) 'mm(' num2str(suffix) ').mat'];
     load(fn, 'detected');
    U=zeros(1,length(v));
     for u = 1:length(v)

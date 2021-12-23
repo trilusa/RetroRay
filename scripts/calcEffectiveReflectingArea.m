@@ -1,5 +1,5 @@
-function alpha =  calcEffectiveReflectingArea()
-    v= 0:0.01:1;
+function alpha =  calcEffectiveReflectingArea(v)
+%     v= 0:0.01:1;
     h=1.5;
     r=.05;
     n=1;

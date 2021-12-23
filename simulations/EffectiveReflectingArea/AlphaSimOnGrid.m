@@ -36,7 +36,8 @@ for d=1:length(D_d)
     F = sqrt(Rx.^2+Ry.^2) >= R_d/2; %outside retro face
     Rx(F) = [];
     Ry(F) = [];
-    dest_points = [Rx, Ry, 0*ones(length(Rx),1)];
+%     dest_points = [Rx, Ry, 0*ones(length(Rx),1)];
+    dest_points = rand
 
 
 % generate light points
@@ -50,7 +51,7 @@ for d=1:length(D_d)
     F = sqrt(Lx.^2+Ly.^2) <= D_d(d)/2; % remve pts inside PD
     Lx(F) = [];
     Ly(F) = [];
-    source_points = [Lx, Ly, h*ones(length(Lx),1)];
+%     source_points = [Lx, Ly, h*ones(length(Lx),1)];
 %     source_points = [((rand(length(Lx),1))*L_sx)-R_d, (rand(length(Lx),1)-.5)*L_sy, h*ones(length(Lx),1)];
 % N=1000     ;
 % source_points = [((rand(N,1))*L_sx)-R_d, (rand(N,1)-.5)*L_sy, h*ones(N,1)];
