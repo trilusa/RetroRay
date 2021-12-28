@@ -1,7 +1,7 @@
 clc; clear all; clf; disp(['Simulation started on: ' char(datetime)]);
 %% Set simulation Paramters
 % Meta Params
-N=2e5;
+N=2e3;
 debug=true;
 % Scene Params
 v = 0:0.2:.8;    % horizontal displacements to simulate
