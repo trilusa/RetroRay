@@ -1,2 +1,7 @@
 
 *.asv
+<<<<<<< Updated upstream
+=======
+*.asv
+*.mat
+>>>>>>> Stashed changes
