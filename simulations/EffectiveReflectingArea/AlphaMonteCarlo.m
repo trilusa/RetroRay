@@ -1,7 +1,7 @@
 clc; clear all; clf; disp(['Simulation started on: ' char(datetime)]);
 %% Set simulation Paramters
 % Meta Params
-N=2e5;
+N=1e3;
 debug=true;
 % Scene Params
 v = 0:0.2:.8;    % horizontal displacements to simulate
@@ -9,7 +9,8 @@ R_test_pos = [-v; zeros(2, length(v))]; % (v,0,0) positions to test retroreflect
 h = 1.5;         % height of lamp above retrorefltor (m)
 
 % Detector Params
-D_d = 0.004:0.002:0.016;     % detector diameter (1mm to simulate point source)
+% D_d = 0.004:0.002:0.016;     % detector diameter (1mm to simulate point source)
+D_d = (.1:.05:4)/1000;
 D_pos = [0;0;h]; % position of center of detecor, in the center of Light
 D_norm = [0;0;-1]; % unit normal (straight down)
 
@@ -85,14 +86,14 @@ for d=1:length(D_d)
                 [new_ray2, old_ray2] = refl2.intersect(ray);
                 [new_ray3, old_ray3] = refl3.intersect(ray);
                 [new_ray4, old_ray4] = circle.intersect(ray);
-                [new_ray5, old_ray5] = cylender.intersect(ray);
+%                 [new_ray5, old_ray5] = cylender.intersect(ray);
                 [new_ray6, old_ray6] = detector.intersect(ray);
                 
                 hits = [new_ray1, old_ray1; ...
                     new_ray2, old_ray2; ...
                     new_ray3, old_ray3; ...
                     new_ray4, old_ray4; ...
-                    new_ray5, old_ray5; ...
+%                     new_ray5, old_ray5; ...
                     new_ray6, old_ray6];
                 
                 %% find which which object was the one actually hit
@@ -140,13 +141,15 @@ for d=1:length(D_d)
     detected_this_trial = cell(1,length(v));
     for k = 1:length(v)
         detected_this_trial{k} = detected{d,k};
+        num_detected_this_trial = detector_hits(d,k);
     end
     
-    save(fn, 'detected_this_trial');
+    save(fn, 'detected_this_trial' ,'num_detected_this_trial');
     disp(['--- Total time: ' num2str(sum(elapsed(d,:))/60) ' minutes ---']);
 end
 
 %%
+%{
 t=tiledlayout(length(D_d),length(v),'TileSpacing','compact');
 txt = ['Light panel dim: ' num2str(L_ro) 'm OD' ...
     'h = ' num2str(h) ', '...
@@ -177,6 +180,7 @@ for d = 1:length(D_d)
 end
 
 %%
+
 t=tiledlayout('flow','TileSpacing','compact');
 
 for trial = 1:length(v)
@@ -236,5 +240,5 @@ plot(v,all);
 legend('calculated (point PD)', ['simulated (' num2str(D_d(d)*1000) 'mm PD)'], 'total hits (include redundant src pts)')
 title(['Normalized Effective Reflectiing Area (\alpha) for ' num2str(D_d(d)*1000) 'mm PD'])
 
-
+%}
 disp(['Simulation ended on: ' char(datetime)]);  

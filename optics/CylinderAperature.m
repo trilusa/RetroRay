@@ -96,7 +96,7 @@ classdef CylinderAperature
 
                 %filter out any t that are not on cyl surf
                 t = t( (dfca>0)  & (dfca < obj.height));
-                %                 t = min(t) %take smallest t (the one that hit the closest surf)
+                t = min(t); %take smallest t (the one that hit the closest surf)
 
                 if isempty(t) %both inf cylinder hits not on fin cyling
                     old_ray.tof = inf;

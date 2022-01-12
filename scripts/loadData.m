@@ -1,10 +1,12 @@
 
-D_d_sim = 0.004:0.002:0.016;     % detector diameter (1mm to simulate point source)
+% D_d_sim = 0.004:0.002:0.016;     % detector diameter (1mm to simulate point source)
+D_d_sim = (.1:.05:4)/1000;
 v_sim = 0:0.2:.8;    % horizontal displacements to simulate
+h=1.5;
 
 suffix = 1;%:25;
-N=2e5;
-data = zeros(length(D_d_sim),length(v));
+N=1e3;
+data = zeros(length(D_d_sim),length(v_sim));
 for s = suffix
 data_all_temp=[];
 for d=1:length(D_d_sim)
@@ -18,6 +20,7 @@ for d=1:length(D_d_sim)
 end
 data = data + data_all_temp;
 end
+data=data/6;
 thetas = atand(v_sim/h);
 data_cos  = data .* cosd(thetas);
 data_cos_d = data_cos ./ (2* sqrt(v_sim.^2 + h^2));
