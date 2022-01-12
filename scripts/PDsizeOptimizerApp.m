@@ -18,13 +18,13 @@ function PDsizeOptimizerApp
     
 %   label
     dir_lbl = uilabel(gl);
-    dir_lbl.Text = "Directions here blah blah blah blah blah";
+    dir_lbl.Text = "Select which photodiodes you want then press plot/update";
     dir_lbl.Layout.Row = 1;
     dir_lbl.Layout.Column = 1;
     dir_lbl.WordWrap = 'on';
 
     title = uilabel(gl);
-    title.Text = "Title";
+    title.Text = "solid = theory, dashed = simulation, dotted is error ratio";
     title.Layout.Row = 1;
     title.Layout.Column = [2 3];
 
@@ -74,12 +74,10 @@ function PDsizeOptimizerApp
     ax_alpha_v.Layout.Row = 2;
     ax_alpha_v.Layout.Column = 2;
     ax_alpha_v.Title.String = "Alpha as function of horiz displacement";
-%     ax_alpha_v.Title = "Alpha as function of horiz displacement";
     ax_alpha_v.XLabel.String = 'v (m)';
     ax_alpha_v.YLabel.String = '\alpha';
     ax_alpha_v.XGrid = 'on';
     ax_alpha_v.YGrid = 'on';
-
 
 %   alpha as function of PD size
     ax_alpha_D_d = uiaxes(gl);
@@ -102,7 +100,6 @@ function PDsizeOptimizerApp
     ax_pwr_v.YLabel.String = 'Normlized Power';
     ax_pwr_v.XGrid = 'on';
     ax_pwr_v.YGrid = 'on';
-    
 
 %   normalized power as function of PD size
     ax_pwr_D_d = uiaxes(gl);
@@ -130,30 +127,30 @@ function UpdatePlots(src,event,data,pd_box,ax)
     v = data.v;
     pwr_theory = data.Pr_norm(keys,:);
     pwr_sim = data.data_cos_d_norm(keys,:);
-    pwr_error = (pwr_theory - pwr_sim) ./ pwr_theory;  
+    pwr_error = (pwr_theory - pwr_sim) ./ pwr_theory;
+    alpha_theory = data.alpha(keys,:);
+    alpha_sim = data.data_norm(keys,:);
+    alpha_error = (alpha_theory-alpha_sim)./alpha_theory;
 
+    styles = repmat([".-" ".--" ".:"],1,1);
+    styles = styles(:)';
+
+    colors = [0 0.4470 0.7410; 0.8500 0.325 0.0980;0.9290 0.6940 0.1250; 0.4940 0.184, 0.5560;0.4660 0.6740 0.188 ; 0.30 0.7450 0.9330;	 0.6350 0.0780 0.1840;  0 0 0; 0 0 1; 0 1 0; 1 0 0];
+
+    ax(1).LineStyleOrder = styles;
+    ax(1).ColorOrder = colors(keys,:);
+    plot(ax(1),v,[alpha_theory; alpha_sim; alpha_error])
+    disp([alpha_theory; alpha_sim; alpha_error])
+    legend(ax(1),[num2str(D_d'*1000)  repmat(' mm',length(D_d),1)]);
+
+    plot(ax(2), D_d*1000, [pwr_theory'; pwr_sim'], 'o');
+    legend(ax(2),[num2str(v')  repmat(' m',length(v),1)]);
+    
+    ax(3).LineStyleOrder = styles;
+    ax(3).ColorOrder = colors(keys,:);
     plot(ax(3), v, [pwr_theory; pwr_sim ; pwr_error] );
     legend(ax(3),[num2str(D_d'*1000)  repmat(' mm',length(D_d),1)]);
 
-    plot(ax(4), D_d*1000, [data.Pr_norm(keys,:)'; data.data_cos_d_norm(keys,:)'], 'o');
+    plot(ax(4), D_d*1000, [pwr_theory'; pwr_sim'], 'o');
     legend(ax(4),[num2str(v')  repmat(' m',length(v),1)]);
-   
-end
-
-function myplot(ax, keys, labels, x, theory, sim)
-
-       plot(ax, x,[theory; sim]);
-
-           %[data.data_cos_d_norm(pd_box.Value,:); data.Pr_norm(pd_box.Value,:)],['o', '-']);
-
-%     plot(ax, data.v, data.data_cos_d_norm(val(1),:), 'x', 'SeriesIndex', 1);
-%     hold(ax,'on')
-%     plot(ax, data.v, data.Pr_norm(val(1),:), '-', 'SeriesIndex', 1);
-%         
-%     for i=2:length(val)
-%         plot(ax, data.v, data.data_cos_d_norm(val(i),:), 'x', 'SeriesIndex', i);
-%         plot(ax, data.v, data.Pr_norm(val(i),:), '-', 'SeriesIndex', i);
-%     end
-%     legend
-%     hold(ax_alpha_v,'off')
 end
