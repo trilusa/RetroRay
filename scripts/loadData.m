@@ -18,8 +18,13 @@ for d=1:length(D_d_sim)
 end
 data = data + data_all_temp;
 end
-thetas = atand(v_sim/h);
-data_cos  = data .* cosd(thetas);
-data_cos_d = data_cos ./ (2* sqrt(v_sim.^2 + h^2));
-data_cos_d_norm = data_cos_d ./ data_cos_d(:,1);
+%%Power calculation
+% calculates power by weighting the number of rays that hit the photodiode
+% by cos(theta), then dividing by d^2. I then normalize for plotting.
+
+% data is  the counts of returned rays at every v value for every PD size
+thetas = atand(v_sim/h); %calculate the angle wrt to lamp surface normal for each CC pos
+data_cos  = data .* cosd(thetas); %weigth by cos(theta)
+data_cos_d = data_cos ./ (2* sqrt(v_sim.^2 + h^2)); %divide by length traveled squared
+data_cos_d_norm = data_cos_d ./ data_cos_d(:,1); %normalize to the measurement when v=0m
 
