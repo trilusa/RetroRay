@@ -143,7 +143,7 @@ function UpdatePlots(src,event,data,pd_box,ax)
     disp([alpha_theory; alpha_sim; alpha_error])
     legend(ax(1),[num2str(D_d'*1000)  repmat(' mm',length(D_d),1)]);
 
-    plot(ax(2), D_d*1000, [pwr_theory'; pwr_sim'], 'o');
+    plot(ax(2), D_d*1000, [pwr_theory'; pwr_sim'], '--o');
     legend(ax(2),[num2str(v')  repmat(' m',length(v),1)]);
     
     ax(3).LineStyleOrder = styles;
@@ -151,6 +151,6 @@ function UpdatePlots(src,event,data,pd_box,ax)
     plot(ax(3), v, [pwr_theory; pwr_sim ; pwr_error] );
     legend(ax(3),[num2str(D_d'*1000)  repmat(' mm',length(D_d),1)]);
 
-    plot(ax(4), D_d*1000, [pwr_theory'; pwr_sim'], 'o');
+    plot(ax(4), D_d*1000, [pwr_theory'; pwr_sim'], '--o');
     legend(ax(4),[num2str(v')  repmat(' m',length(v),1)]);
 end
