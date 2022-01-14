@@ -2,9 +2,10 @@
 D_d_sim = 0.004;%:0.002:0.016;     % detector diameter (1mm to simulate point source)
 v_sim = 0:0.2:.8;    % horizontal displacements to simulate
 
-suffix = 1:25;
-N=2e6;
-data = zeros(length(D_d_sim),length(v));
+suffix = 1;%:25;
+N=1e3;
+data = zeros(length(D_d_sim),length(v_sim));
+
 for s = suffix
 data_all_temp=[];
 for d=1:length(D_d_sim)
