@@ -1,13 +1,8 @@
- function alpha =  calcAlphaForPDWithArea(PD_d,v)
-%     v= 0:0.01:5;
-    h=1.5;
-    R_d=.05;
-%     PD_d = .01;%0.002:0.002:0.020;
-    PD_r = PD_d/2;
-    
+function alpha =  calcAlphaForPDWithArea(PD_d,v,h,R_d,L,Ls)
+    PD_r = PD_d/2;  
     n=1;
-    L = .0357;
-    Ls = .0063;
+%     L = .0357;
+%     Ls = .0063;
     
     alpha=zeros(length(PD_r),length(v));
     for d=1:length(PD_r)

@@ -1,50 +1,67 @@
-clc; clear all; clf; disp(['Simulation started on: ' char(datetime)]);
+clc; 
+while true
+clear all; clf; disp(['Simulation started on: ' char(datetime)]);
 %% Set simulation Paramters
+%parpool(62);
 % Meta Params
-N=1e3;
-debug=true;
+N=1e6;
+debug=false;
 % Scene Params
-v = 0:0.2:.8;    % horizontal displacements to simulate
+% v = 0:0.05:.8;    % horizontal displacements to simulate
+v = 0:0.025:.75;    % horizontal displacements to simulate
+v = [v; v];
+v = v(:)';
+
 R_test_pos = [-v; zeros(2, length(v))]; % (v,0,0) positions to test retroreflector
-h = 1.5;         % height of lamp above retrorefltor (m)
+H = [1.5];% 3 4.5];         % height of lamp above retrorefltor (m)
 
 % Detector Params
 % D_d = 0.004:0.002:0.016;     % detector diameter (1mm to simulate point source)
-D_d = (.1:.05:4)/1000;
-D_pos = [0;0;h]; % position of center of detecor, in the center of Light
-D_norm = [0;0;-1]; % unit normal (straight down)
+% D_d = (.1:.05:4)/1000;
+D_d = [.1e-3 1e-3 10e-3]  % .1 .1 .1 .1 .1 .1 .1 .1 .1 .1 .1 .1 .1 .1 .1 .1 .1 1 1 1 1 1 1 1 1 1 1]/1e3%.2 .4 .6 .8 1.0 2  4  6  8  10 ...
+%12 14 16 18 20 25 30 35 40 45 50 55 60 65 70 75 100 150 200]/1000;
+
 
 % Retroreflector Params
-R_d = .050;       % front face diamter (r in the paper, 50mm)
+R_d = .050/5;       % front face diamter (r in the paper, 50mm)
 R_ri = 1;        % refractive index of CC material
-R_L = .0357;     % Length of CC portion of retroreflector (35.7mm)
-R_Ls = .0063;    % Length of recession from front face to top of CC (6.3 mm)
+R_L = .0357/5;     % Length of CC portion of retroreflector (35.7mm)
+R_Ls = .0063/5;    % Length of recession from front face to top of CC (6.3 mm)
+
 R_az = deg2rad(0); %azimuth angle wrt +x axis
 R_el = deg2rad(0);
+% R_d = [ .050/50 .050/5 .050 ];    
+% R_L = [ .0357/50 .0357/5 .0357 ];     
+% R_Ls = [.0063/50 .0063/5 .0063 ]; 
 
 %light boundaries
 
 elapsed = zeros(length(D_d),length(v));        % tracks run time for each trial 
 detector_hits = zeros(length(D_d),length(v));  % tracks number of hits per trial
 detected = cell(length(D_d),length(v));
-all_rays = cell(length(D_d),length(v));
+% all_rays = cell(length(D_d),length(v));
 
+for r=1:length(R_d)
+for h=H
+    D_pos = [0;0;h]; % position of center of detecor, in the center of Light
+    D_norm = [0;0;-1]; % unit normal (straight down)D_pos = [0;0;h]; % position of center of detecor, in the center of Light
 for d=1:length(D_d)
     disp(['*** PD diameter = ' num2str(D_d(d)*1000) 'mm ***'])
     
     %calculate bounaried of light soruce for monte carlo
-    L_ro = R_d; %outer radius of light
+    L_ro = R_d(r) + D_d(d);%R_d; %outer radius of light
     L_ri = D_d(d)/2; %inner radios of the light srouce (cuts out PD)
     
     detector = Detector(D_pos, D_norm, D_d(d)); %detector obj for ray tracer
     
-    for trial = 1:length(v)
+    parfor trial = 1:length(v)
         tic;  disp(['Trial ' num2str(trial) ': v = ' num2str(v(trial)) 'm']);
 
         %generate retroreflector components
-        [refl1, refl2, refl3, cylender, circle] = buildCornerCube(R_d, R_L, R_Ls, [0;0;0] + R_test_pos(:,trial), R_az, R_el);
+        [refl1, refl2, refl3, cylender, circle] = buildCornerCube(R_d(r), R_L(r), R_Ls(r), [0;0;0] + R_test_pos(:,trial), R_az, R_el);
        
         %% raytrace algorithm
+        
         for i = 1:N
             %generate the source pt on light
 %             r=abs(L_ro*sum(rand(1,10),2)/10-L_ro/2)+L_ri;
@@ -58,21 +75,21 @@ for d=1:length(D_d)
                 x = (rand(1,1)-0.5)*2*L_ro;
                 y = (rand(1,1)-0.5)*2*L_ro;
             end
-            source_pt  = [x y 1.5];
+            source_pt  = [x y h];
             
             %generate the target point on retroreflector
 %             r = rand(1,1)*(R_d/2);                  %random radius on retroreflector
 %             th = rand(1,1)*2*pi;                    %rand angle
 %             [x,y,z] = pol2cart(th,r,0); %convert to cartesian
 
-            x = (rand(1,1)-0.5)*R_d;
-            y = (rand(1,1)-0.5)*R_d;
-            while( (x^2+y^2 > L_ro^2) ||  (x^2+y^2 < L_ri^2))
-                x = (rand(1,1)-0.5)*R_d;
-                y = (rand(1,1)-0.5)*R_d;
+            x = (rand(1,1)-0.5)*R_d(r);
+            y = (rand(1,1)-0.5)*R_d(r);
+            while (x^2+y^2 > (R_d(r)/2)^2)
+                x = (rand(1,1)-0.5)*R_d(r);
+                y = (rand(1,1)-0.5)*R_d(r);
             end
             dest_pt = [x y 0] + R_test_pos(:,trial)'; %offset by v in the x direction 
-            all_rays{d,trial} = [all_rays{d,trial}; [source_pt, dest_pt]];
+%             all_rays{d,trial} = [all_rays{d,trial}; [source_pt, dest_pt]];
             
             
             %calculate the ray normal so ray object can be generated
@@ -132,10 +149,10 @@ for d=1:length(D_d)
     end
     %%
     suffix=1;
-    fn =['monte-carlo-alpha_N' num2str(N) '_PD' num2str(D_d(d)*1000) 'mm_L' num2str(L_ro*1000) 'mm(' num2str(suffix) ').mat'];
+    fn =['monte-carlo-alpha_N' num2str(N) '_PD' num2str(D_d(d)*1000) 'mm_L' num2str(L_ro*1000) 'mm_h' num2str(h) 'm_Rd' num2str(R_d(r)*1000) 'mm(' num2str(suffix) ').mat'];
     while exist(fn, 'file') == 2 
         suffix = suffix+1;
-        fn =['monte-carlo-alpha_N' num2str(N) '_PD' num2str(D_d(d)*1000) 'mm_L' num2str(L_ro*1000) 'mm(' num2str(suffix) ').mat'];
+    fn =['monte-carlo-alpha_N' num2str(N) '_PD' num2str(D_d(d)*1000) 'mm_L' num2str(L_ro*1000) 'mm_h' num2str(h) 'm_Rd' num2str(R_d(r)*1000) 'mm(' num2str(suffix) ').mat'];
     end
     
     detected_this_trial = cell(1,length(v));
@@ -143,11 +160,13 @@ for d=1:length(D_d)
         detected_this_trial{k} = detected{d,k};
         num_detected_this_trial = detector_hits(d,k);
     end
-    
-    save(fn, 'detected_this_trial' ,'num_detected_this_trial');
+    rrd=R_d(r);
+    save(fn, 'detected_this_trial' ,'num_detected_this_trial','h','L_ro','N','d','rrd','v');
     disp(['--- Total time: ' num2str(sum(elapsed(d,:))/60) ' minutes ---']);
 end
-
+end
+end
+end
 %%
 %{
 t=tiledlayout(length(D_d),length(v),'TileSpacing','compact');
@@ -241,4 +260,4 @@ legend('calculated (point PD)', ['simulated (' num2str(D_d(d)*1000) 'mm PD)'], '
 title(['Normalized Effective Reflectiing Area (\alpha) for ' num2str(D_d(d)*1000) 'mm PD'])
 
 %}
-disp(['Simulation ended on: ' char(datetime)]);  
+disp(['Simulation ended on: ' char(datetime)]);
