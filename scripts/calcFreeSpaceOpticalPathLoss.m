@@ -1,8 +1,13 @@
-v = 0.0:.2:.8;   %horizonal positions
-D_d = .004:.002:.016;  %diode diameters to test
+v = 0.0:.02:1;   %horizonal positions
+D_d = .004:.004:.016;  %diode diameters to test
 Pt=1;  % Tx power, 1 watt
 h=1.5; %m
 m=1; %lambertian source with half angle = 60 degrees
+H = 1.5;
+Rd=50e-3;
+L = .0357 * (Rd/50e-3);
+Ls = .0063 * (Rd/50e-3);
+
 
 %initialize variables to hold results
 Pr = zeros(length(D_d), length(v)); % holds absolute power values
@@ -12,7 +17,7 @@ Pr_db = zeros(length(D_d), length(v)); % holds power in dB wrt power recived at 
 for d=1:length(D_d)
 As = pi*(D_d(d)/2)^2; %calc sensing area
 for i = 1:length(v)
-    alpha = calcAlphaForPDWithArea(D_d(d),v(i)); %calc alpha
+    alpha = calcAlphaForPDWithArea(D_d(d),v(i),H,Rd,L,Ls); %calc alpha
     dist = sqrt(v(i)^2+h^2); %distance from light to corcnercube
     theta = atan(v(i)/h); %incidence angle wrt CC normal
 

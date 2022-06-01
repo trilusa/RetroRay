@@ -48,9 +48,10 @@ end
 alpha_H_sim = (numHits_H ./ numHits_H(:,1)) * 100; 
 
 %calc alpha for sim 2 (PDdiam=10mm, V=[0:25mm:.75m], H=[1.5 3 4.5], RRdiam=10mm)
-alpha_H_theory = [calcAlphaForPDWithArea(D_d(3), Vtheo, H(1), R_d(2), R_L(2), R_Ls(2));
-                  calcAlphaForPDWithArea(D_d(3), Vtheo, H(2), R_d(2), R_L(2), R_Ls(2));
-                  calcAlphaForPDWithArea(D_d(3), Vtheo, H(3), R_d(2), R_L(2), R_Ls(2))] * 100;
+rrn=3;
+alpha_H_theory = [calcAlphaForPDWithArea(D_d(3), Vtheo, H(1), R_d(rrn), R_L(rrn), R_Ls(rrn));
+                  calcAlphaForPDWithArea(D_d(3), Vtheo, H(2), R_d(rrn), R_L(rrn), R_Ls(rrn));
+                  calcAlphaForPDWithArea(D_d(3), Vtheo, H(3), R_d(rrn), R_L(rrn), R_Ls(rrn))] * 100;
 
 % figure(1)
 nexttile

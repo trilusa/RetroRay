@@ -7,12 +7,12 @@ clc; clear all;
 
 %% Set simulation Paramters
 % Meta Params
-    N = 500e4;         % number of rays to cast per trial
-    N_to_plot = 1e3; % number to plot if debug 
+    N = 5e5;         % number of rays to cast per trial
+    N_to_plot = N; % number to plot if debug 
     debug = true;   % will plot and print if true
 
 % Scene Params
-    v = 0:0.1:.4;     % horizontal displacements to simulate
+    v = .250;%0:0.1:.4;     % horizontal displacements to simulate
     R_test_pos = [-v; zeros(2, length(v))]; % (v,0,0) positions to test retroreflector
     h = 1.5;         % height of lamp above retrorefltor (m)
 
@@ -25,19 +25,19 @@ clc; clear all;
     R_el = deg2rad(0);
 
 % Detector Params
-    D_d = 0.001;     % detector diameter (1mm to simulate point source)
+    D_d = 0.01;     % detector diameter (1mm to simulate point source)
     D_pos = [0;0;h]; % position of center of detecor, in the center of Light
     D_norm = [0;0;-1]; % unit normal (straight down)
 
 % Light Params
-    L_od = .120;     %  outer diamter of light source [100mm (front face * 2)+ largest PD]
+    L_od = .1;     %  outer diamter of light source [100mm (front face * 2)+ largest PD]
     L_id = D_d;        % inner diameter (0 to make disk source)
     L_pos = [0;0;h]; % position of center of light, straight up by h
     L_norm = [0;0;-1]; % light unit normal (straight down)
 
 %% Setup scene
 light = Light(L_pos, L_norm, L_id, L_od);
-detector = Detector(D_pos, D_norm, D_d);
+detector = Detector(D_pos, D_norm, D_d,'NoInversion');
 detector_hits = zeros(length(v),1);
 ray_log = cell(N_to_plot,6,length(v));
 elx = deg2rad(5);
@@ -120,23 +120,24 @@ end
 
 %% Plotting function
 if debug
-    trial_to_plot = 5;
+    
+    trial_to_plot = 1;
     clf
     hold on
     axis("equal")
-    grid on
-    s=1.5;
-    xlim(s*[-1 1]);
-    ylim(s*[-1 1]);
-    zlim(s*[-1 1]);
+    grid minor
+    
+    xlim([-2.5 .15]);
+    ylim([-.2 1]);
+    zlim([-.1 1.6]);
     xlabel("X");
     ylabel("Y");
     zlabel("Z");
-    view(deg2rad(30),deg2rad(30));
     
+    light = Light(L_pos, L_norm, L_id, L_od);
     % plot first reflector position
     [refl1, refl2, refl3, cylender, circle] = buildCornerCube( ...
-        R_d, R_L, R_Ls, R_test_pos(:, trial_to_plot), R_az, R_el);
+        R_d(1), R_L(1), R_Ls(1), R_test_pos(:, trial_to_plot), R_az, R_el);
 
     detector.plot();
     light.plot();
@@ -146,22 +147,33 @@ if debug
     circle.plot();
     cylender.plot();
 
-    colors = ['b','k','k','r','m','c'];
-    for i=1:length([ray_log{:,1,trial_to_plot}])
+    colors = ['r','k','k','b','m','c'];
+    q=10000;
+    for i=q:q+8000%length([ray_log{:,1,trial_to_plot}])
         for j=1:6%length([ray_log{1,}])
-            if ~isempty(ray_log{i,j,trial_to_plot})% && ray_log{i,j}.type ~= "ABSORBED" && ray_log{i,j}.type ~= "MISSED"
+            if ~isempty(ray_log{i,j,trial_to_plot}) && ray_log{i,j}.type == "DETECTED" %&& ray_log{i,j}.type ~= "MISSED"
                 ray_log{i,j,trial_to_plot}.color = colors(j);
                 plot(ray_log{i,j,trial_to_plot});
+                
             end
         end
     end
     hold off
 end
+    view(180,0);
 
+% hold on
+% Use fourth input for color scale.
+% patch([1 -1 -1 1]*10, [1 1 -1 -1]*10, [-1 -1 -1 -1 ]*.5, 'b')  
+% p1=patch([1 -1 -1 1]*10, [-1 -1 -1 -1 ]*.5, [1 1 -1 -1]*10,'b')  
+% p1.FaceAlpha=.2;
+% hold off
+
+%%
 avg_ray_time = elapsed/N
 disp(detector_hits');
-
-
-fid = fopen('alpha_data.txt', 'a+');
-fprintf(fid, '%d  %d  %d  %d  %d  R_d=%.3f  D_d=%.3f  h=%.2f  N=%.2e  T=%.2fs\n', detector_hits, R_d, D_d,h, N,elapsed);
-fclose(fid);
+disp('done')
+% 
+% fid = fopen('alpha_data.txt', 'a+');
+% fprintf(fid, '%d  %d  %d  %d  %d  R_d=%.3f  D_d=%.3f  h=%.2f  N=%.2e  T=%.2fs\n', detector_hits, R_d, D_d,h, N,elapsed);
+% fclose(fid);

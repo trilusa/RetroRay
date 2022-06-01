@@ -4,7 +4,10 @@ function [refl1, refl2, refl3, cylender, circle] = buildCornerCube(R_d, R_L, R_L
     Rz = @(t) [cos(t) -sin(t) 0 ; sin(t) cos(t) 0 ; 0 0 1] ;
     
     %% calculate side length from params
-    s = .068; %R_L/sqrt(3);
+     s = .068; %This is for a 50mm cube
+     %so I will scale it based on what R_d is
+     s = .068 * (R_d / 50e-3);
+
 %   initial  veritices along bases
     vertex=[0; 0; 0];
     face=s*eye(3);

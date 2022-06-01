@@ -4,15 +4,21 @@ classdef Detector
         normal; %normal
         r; %radius
         hits;%hits
+        invert;
     end
 
     methods
         %% constructor
-        function obj = Detector(cp,n,d)
+        function obj = Detector(cp,n,d,op)
             obj.center_pt = cp;
             obj.normal = n/norm(n);
             obj.r=d/2;
             obj.hits=0;
+            if op=="InvertDetection"
+                obj.invert = -1;
+            else
+                obj.invert = 1;
+            end
         end
 
         function hits = hit(obj)
@@ -38,7 +44,7 @@ classdef Detector
 
             %check if inside circle, return new ray accordingly
             old_ray=ray;
-            if norm(int_pt-obj.center_pt) < obj.r 
+            if (obj.invert*norm(int_pt-obj.center_pt)) < (obj.r*obj.invert) 
                 new_ray = old_ray;
                 old_ray.tof=t;   
                 old_ray.type = "DETECTED";

@@ -1,7 +1,7 @@
 %% Script to do a fancy plot of ERA vs PD size
 
-    N=2000;
-    suffix=2;
+    N=5e6;
+    suffix=1;
 
     v = 0:0.2:.8;  % horizontal displacements to simulate
     R_test_pos = [-v; zeros(2, length(v))]; % (v,0,0) positions to test retroreflector
