@@ -79,4 +79,4 @@ for s=1:length(sim)
 
 end
 toc
- save('processed_alpha_era_theory_sim(4).mat','alpha','alpha_th',"ERA","ERA_th","Apd" ,"Apd_th");
+ save('final_data_small.mat','alpha','alpha_th',"ERA","ERA_th","Apd" ,"Apd_th");

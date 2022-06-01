@@ -1,5 +1,5 @@
 clc; clear all;
-load('processed_alpha_era_theory_sim(3).mat');
+load('final_data_large(1).mat');
 load('alpha_PD1mm_H1.5m_Rd50mm_L101mm_N10000000(1).mat', 'V')
 D_d = {[0.1,1,10]*1e-3, 10e-3, 1e-3};
 R_d = {10e-3, [1 10 50]*1e-3, 50e-3};
