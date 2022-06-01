@@ -72,13 +72,13 @@ for r = 1:length(Dia_CC)
 
                     A_sector = phi_a*r_sec^2;
                     A_trapezoid = .5*r_sec*sin(phi_a)*(2*(D+Ds)+L_seg);
-                    A_segment = (1/8)*Dia_PD(d)^2*(2*phi_b-sin(phi_b));
+                    A_segment = (1/8)*Dia_PD(d)^2*(phi_b-sin(phi_b));
 
                     Apd(i,v) = .25*pi*Dia_PD(d)^2 - 2*(A_sector+A_trapezoid+A_segment);
                 %Case 2    
                 elseif( (Dia_CC(r)>=.5*Dia_PD(d)) && sqrt(Dia_CC(r)^2 - ((D+Ds)^2)) < .5*Dia_PD(d))
                     phi_b=2*acos((2*sqrt(Dia_CC(r)^2-(D+Ds)^2)) / Dia_PD(d));
-                    A_segment= (1/8)*Dia_PD(d)^2*(2*phi_b-sin(phi_b));
+                    A_segment= (1/8)*Dia_PD(d)^2*(phi_b-sin(phi_b));
 
                     Apd(i,v)=.25*pi*Dia_PD(d)^2 - 2*A_segment;
                 %Case 3
