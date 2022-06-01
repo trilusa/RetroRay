@@ -9,9 +9,9 @@ params = {D_d{1}, R_d{1},H{1};
     D_d{3},R_d{3},H{3}};
 
 figure(100001)
-t=tiledlayout(3,3,"Padding","compact", "TileSpacing","loose");
+t=tiledlayout(3,3,"Padding","compact", "TileSpacing","normal");
 c = ['r' 'g' 'b'];
-% colororder({c(1) C(2) C(3); C(1) C(2) C(3)});
+% 'Color'order({c(1) C(2) C(3); C(1) C(2) C(3)});
 
 
 lgntxt = {[repmat('PD diam = ',3, 1) num2str(1.*[.1 1 10 ]') repmat(' mm',3,1)];
@@ -39,20 +39,20 @@ for s=1:3:9
     yyaxis left
     hold on
 %      [alpha_th, ERA_th ] = calcAlphaForPDWithArea(D(i),V,H(i),R(i),RL,RLs)
-    plot(V, 100*alpha_th(s,  1:fidx),'-', Color=C{1})
-    plot(V, 100*alpha_th(s+1,1:fidx),'-' ,Color=C{2})
-    plot(V, 100*alpha_th(s+2,1:fidx), '-',Color=C{3})
-    plot(V, 100*alpha(s,1:fidx),'--.', Color=C{1})
-    plot(V, 100*alpha(s+1,1:fidx),'--.',Color=C{2})
-    plot(V, 100*alpha(s+2,1:fidx),'--.',Color=C{3})
+    plot(V, 100*alpha_th(s,  1:fidx),'-', 'Color',C{1})
+    plot(V, 100*alpha_th(s+1,1:fidx),'-' ,'Color',C{2})
+    plot(V, 100*alpha_th(s+2,1:fidx), '-','Color',C{3})
+    plot(V, 100*alpha(s,1:fidx),'--.', 'Color',C{1})
+    plot(V, 100*alpha(s+1,1:fidx),'--.','Color',C{2})
+    plot(V, 100*alpha(s+2,1:fidx),'--.','Color',C{3})
     ylabel('\alpha (%)')
     ylim([0 105])
     xlim([0 rlim])
 
     yyaxis right
-    plot(V,abs(100*(alpha_th(s,1:fidx)-alpha(s,1:fidx))),'--', Color=[C{1} transparency])
-    plot(V,abs(100*(alpha_th(s+1,1:fidx)-alpha(s+1,1:fidx))),'--',Color=[C{2} transparency])
-    plot(V,abs(100*(alpha_th(s+2,1:fidx)-alpha(s+2,1:fidx))),'--',Color=[C{3} transparency])
+    plot(V,abs(100*(alpha_th(s,1:fidx)-alpha(s,1:fidx))),'--', 'Color',[C{1} transparency])
+    plot(V,abs(100*(alpha_th(s+1,1:fidx)-alpha(s+1,1:fidx))),'--','Color',[C{2} transparency])
+    plot(V,abs(100*(alpha_th(s+2,1:fidx)-alpha(s+2,1:fidx))),'--','Color',[C{3} transparency])
     ylabel("|\alpha error|")
 %     ylim([-.1 .1])
 %     title(titletxt(i))
@@ -66,20 +66,20 @@ for s=1:3:9
     nexttile
     yyaxis left
     hold on
-    p(1)=plot(V, 1e6*ERA_th(s,  1:fidx), '-',Color=C{1});
-    p(2)=plot(V, 1e6*ERA_th(s+1,1:fidx),'-', Color=C{2});
-    p(3)=plot(V, 1e6*ERA_th(s+2,1:fidx), '-',Color=C{3});
+    p(1)=plot(V, 1e6*ERA_th(s,  1:fidx), '-','Color',C{1});
+    p(2)=plot(V, 1e6*ERA_th(s+1,1:fidx),'-', 'Color',C{2});
+    p(3)=plot(V, 1e6*ERA_th(s+2,1:fidx), '-','Color',C{3});
 
-    plot(V,  1e6*ERA(s,1:fidx),'--.', Color=C{1})
-    plot(V,  1e6*ERA(s+1,1:fidx),'--.',Color=C{2})
-    plot(V,  1e6*ERA(s+2,1:fidx),'--.',Color=C{3})
+    plot(V,  1e6*ERA(s,1:fidx),'--.', 'Color',C{1})
+    plot(V,  1e6*ERA(s+1,1:fidx),'--.','Color',C{2})
+    plot(V,  1e6*ERA(s+2,1:fidx),'--.','Color',C{3})
     ylabel('ERA (mm^2)')
     xlim([0 rlim])
 
     yyaxis right
-    plot(V,abs(1e6*(ERA_th(s,1:fidx)-ERA(s,1:fidx))),'--',Color=[C{1} transparency] )
-    plot(V,abs(1e6*(ERA_th(s+1,1:fidx)-ERA(s+1,1:fidx))),'--', Color=[C{2} transparency])
-    plot(V,abs(1e6*(ERA_th(s+2,1:fidx)-ERA(s+2,1:fidx))),'--',Color=[C{3} transparency])
+    plot(V,abs(1e6*(ERA_th(s,1:fidx)-ERA(s,1:fidx))),'--','Color',[C{1} transparency] )
+    plot(V,abs(1e6*(ERA_th(s+1,1:fidx)-ERA(s+1,1:fidx))),'--', 'Color',[C{2} transparency])
+    plot(V,abs(1e6*(ERA_th(s+2,1:fidx)-ERA(s+2,1:fidx))),'--','Color',[C{3} transparency])
 
 
     ylabel("|ERA error| (mm^2)")
@@ -97,20 +97,20 @@ for s=1:3:9
     nexttile
     yyaxis left
     hold on
-    p(1)=plot(V, 1e6*(Apd_th(s, 1:fidx)), '-',Color=C{1});
-    p(2)= plot(V,  1e6*(Apd_th(s+1,1:fidx)),'-', Color=C{2});
-    p(3)=plot(V,  1e6*(Apd_th(s+2,1:fidx)), '-',Color=C{3});
+    p(1)=plot(V, 1e6*(Apd_th(s, 1:fidx)), '-','Color',C{1});
+    p(2)= plot(V,  1e6*(Apd_th(s+1,1:fidx)),'-', 'Color',C{2});
+    p(3)=plot(V,  1e6*(Apd_th(s+2,1:fidx)), '-','Color',C{3});
 
-    plot(V,  1e6*Apd(s,1:fidx),'--.', Color=C{1})
-    plot(V,  1e6*Apd(s+1,1:fidx),'--.',Color=C{2})
-    plot(V,  1e6*Apd(s+2,1:fidx),'--.',Color=C{3})
+    plot(V,  1e6*Apd(s,1:fidx),'--.', 'Color',C{1})
+    plot(V,  1e6*Apd(s+1,1:fidx),'--.','Color',C{2})
+    plot(V,  1e6*Apd(s+2,1:fidx),'--.','Color',C{3})
     ylabel('A_{pd} (mm^2)')
      xlim([0 rlim])
 
     yyaxis right
-    plot(V,abs(1e6*( (Apd_th(s,1:fidx)-Apd(s,1:fidx) ))),'--',Color=[C{1} transparency] )
-    plot(V,abs(1e6*( (Apd_th(s+1,1:fidx)-Apd(s+1,1:fidx)))),'--', Color=[C{2} transparency])
-    plot(V,abs(1e6*( (Apd_th(s+2,1:fidx)-Apd(s+2,1:fidx)))),'--',Color=[C{3} transparency])
+    plot(V,abs(1e6*( (Apd_th(s,1:fidx)-Apd(s,1:fidx) ))),'--','Color',[C{1} transparency] )
+    plot(V,abs(1e6*( (Apd_th(s+1,1:fidx)-Apd(s+1,1:fidx)))),'--', 'Color',[C{2} transparency])
+    plot(V,abs(1e6*( (Apd_th(s+2,1:fidx)-Apd(s+2,1:fidx)))),'--','Color',[C{3} transparency])
 
     ylabel("|A_{pd} Error| (mm^2)")
     legend(p(:),lgntxt{i}, 'Location','northeast', 'Orientation','Vertical' );
