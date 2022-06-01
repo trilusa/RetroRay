@@ -1,6 +1,6 @@
 
 /**/*.asv
 /data/**
-*.fig
 *.png
+*.fig
 *.mat
